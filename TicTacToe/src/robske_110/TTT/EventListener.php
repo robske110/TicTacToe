@@ -12,7 +12,7 @@ class EventListener implements Listener{
 	private $main;
 	public $arenaCreationSessions;
 
-	public function __construct(PlayerParticles $main){
+	public function __construct(TicTacToe $main){
 		$this->main = $main;
 	}
     
@@ -39,7 +39,7 @@ class EventListener implements Listener{
 		}	
 	}
 	
-	public function onSignTap(PlayerInteractEvent $event){
+	public function onBlockTap(PlayerInteractEvent $event){
 		if($event->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK){
 			$player = $event->getPlayer();
 			if(isset($this->arenaCreationSessions[$player->getId()])){

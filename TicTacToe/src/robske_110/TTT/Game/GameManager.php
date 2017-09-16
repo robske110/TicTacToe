@@ -4,12 +4,12 @@ namespace robske_110\TTT\Game;
 
 use robske_110\TTT\TicTacToe;
 
-class RenderManager{
+class GameManager{
 	private $main;
 	private $games = [];
 	private $arenas = [];
 	
-	public function __construct(PlayerParticles $main){
+	public function __construct(TicTacToe $main){
 		$this->main = $main;
 	}
 	

@@ -3,13 +3,15 @@
 namespace robske_110\TTT;
 
 use pocketmine\plugin\PluginBase;
+use pocketmine\command\CommandSender;
+use pocketmine\command\Command;
 use pocketmine\utils\Config;
 use pocketmine\level\Positon;
 
-use robske_110\PlayerParticles\Game\GameManager;
-use robske_110\PlayerParticles\Game\Arena;
+use robske_110\TTT\Game\GameManager;
+use robske_110\TTT\Game\Arena;
 
-class PlayerParticles extends PluginBase{
+class TicTacToe extends PluginBase{
 	/** @var Config */
 	private $db;
 	
