@@ -2,7 +2,7 @@
 
 namespace robske_110\TTT\Game;
 
-use pocketmine\level\Location;
+use pocketmine\level\Position;
 
 class Arena{
 	/** @var Location */
@@ -14,7 +14,7 @@ class Arena{
 	/** @var bool */
 	private $occupied = false;
 	
-	public function __construct(Location $pos1, Location $pos1){
+	public function __construct(Position $pos1, Position $pos2){
 		$this->pos1 = $pos1;
 		$this->pos2 = $pos2;
 	}
@@ -29,7 +29,7 @@ class Arena{
     /**
      * @return array
      */
-	public function getLocation(): array{
+	public function getArea(): array{
 		return [$this->pos1, $this->pos2];
 	}
 	

@@ -19,10 +19,11 @@ class GameManager{
 	
 	public function getFreeArena(): ?Arena{
 		foreach($this->arenas as $arena){
-			if($arena->isOccupied()){
+			if(!$arena->isOccupied()){
 				return $arena;
 			}
 		}
+		return null;
 	}
 	
 	/**
@@ -31,7 +32,7 @@ class GameManager{
 	public function startGame(Game $game){
 		$this->games[] = $game;
 		foreach($game->getPlayers() as $playerId => $playerData){
-			$playerData[0]->teleport($game->getArena()->getPositon()[0]);
+			$playerData[0]->teleport($game->getArena()->getArea()[0]);
 		}
 		$game->start();
 	}

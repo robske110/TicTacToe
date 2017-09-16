@@ -5,8 +5,10 @@ namespace robske_110\TTT;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\tile\Sign;
 
-use robske_110\PlayerParticles\Game\Game;
+use robske_110\TTT\Game\Game;
+use robske_110\TTT\Game\Arena;
 
 class EventListener implements Listener{
 	private $main;
@@ -17,11 +19,10 @@ class EventListener implements Listener{
 	}
     
 	public function onItemFrameBlockSet(PlayerInteractEvent $event){
-		var_dump($event->getAction());
-		var_dump($event->getBlock());
-		return;
-		if(($game = $this->main->getPlayerManager()->getGame($event->getPlayer()->getId())) instanceof Game){
-			$game->onGameMove($event->getPlayer()->getId(), $itemFrame);
+		if($event->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK){
+			if(($game = $this->main->getPlayerManager()->getGameForPlayer($event->getPlayer()->getId())) instanceof Game){
+				$game->onGameMove($event->getPlayer()->getId(), $event->getBlock());
+			}
 		}
 	}
 	
@@ -32,7 +33,7 @@ class EventListener implements Listener{
 			$signTile = $player->getLevel()->getTile($block);
 			if($signTile instanceof Sign){
 				$sign = $signTile->getText();
-				if($sign[0]=='[TTT]'){
+				if($sign[0] == '[TTT]'){
 					$this->main->getPlayerManager()->addPlayer($event->getPlayer()->getId());
 				}
 			}
@@ -45,8 +46,8 @@ class EventListener implements Listener{
 			if(isset($this->arenaCreationSessions[$player->getId()])){
 				$block = $event->getBlock();
 				$this->arenaCreationSessions[$player->getId()][] = $block;
-				if(count($this->arenaCreationSessions[$player->getId()] >= 2)){
-					$this->main->getGameManager->addArena(
+				if(count($this->arenaCreationSessions[$player->getId()]) >= 2){
+					$this->main->getGameManager()->addArena(
 						new Arena(
 							$this->arenaCreationSessions[$player->getId()][0],
 							$this->arenaCreationSessions[$player->getId()][1]

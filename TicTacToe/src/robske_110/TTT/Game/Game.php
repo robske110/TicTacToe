@@ -2,7 +2,11 @@
 
 namespace robske_110\TTT\Game;
 
-use pocketmine\utils\Vector3;
+use pocketmine\level\Position;
+use pocketmine\Player;
+
+use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 
 class Game{
 	/** @var Arena */
@@ -12,16 +16,20 @@ class Game{
 	/** @var array */
 	private $players;
 	/** @var array */
-	private $map;
+	private $map = [
+		0 => ["","",""],
+		1 => ["","",""],
+		2 => ["","",""]
+	];
 	
 	public function __construct(Arena $arena){
 		$this->arena = $arena;
 		$this->arena->occupy($this);
 	}
 
-	public function onGameMove(int $playerId, $itemFrame){
+	public function onGameMove(int $playerID, $itemFrame){
 		if($this->players[$playerID][1]){
-			if(($pos = $this->getPositionOnMap($itemFrame) !== null){ //check if valid turn
+			if(($pos = $this->getPositionOnMap($itemFrame)) !== null){ //check if valid turn
 				if($this->map[$pos[0]][$pos[1]] === ""){
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
 					$this->checkForWin();
@@ -34,18 +42,18 @@ class Game{
 		}
 	}
 
-	public function getPositionOnMap(Vector3 $vec3): ?array{
-		$mapPos = $this->arena->getPositon();
+	public function getPositionOnMap(Position $pos): ?array{
+		$mapPos = $this->arena->getArea();
 		$posDownLeft = $mapPos[0];
 		$posUpperRight = $mapPos[1];
-		$verticalPos = $vec3 - $posDownLeft->y;
+		$verticalPos = $pos->y - $posDownLeft->y;
 		if($verticalPos > 2 || $verticalPos < 0){
 			return null;
 		}
 		if($posDownLeft->x === $posUpperRight->x){
-			$horizontalPos = $posDownLeft->x - $vec3->x;
+			$horizontalPos = $posDownLeft->x - $pos->x;
 		}elseif($posDownLeft->z === $posUpperRight->z){
-			$horizontalPos = $posDownLeft->z - $vec3->z;
+			$horizontalPos = $posDownLeft->z - $pos->z;
 		}else{
 			return null;
 		}
@@ -61,6 +69,16 @@ class Game{
 			if($content[0] == $content[1] && $content[0] == $content[2]){
 				$this->end($this->getPlayerWithSymbol($content[0]));
 			}
+		}
+		$isFull = true;
+		foreach($this->map as $content){
+			if($content[0] !== "" || $content[1] !== "" || $content[2] !== ""){
+				$isFull = false;
+				break;
+			}
+		}
+		if($isFull){
+			$this->end();
 		}
 		for($i = 0; $i < 3; $i++){
 			if($this->map[0][$i] == $this->map[1][1] && $this->map[0][$i] == $this->map[2][$i]){
@@ -96,9 +114,9 @@ class Game{
 	}
 	
 	public function getOpponent(int $playerID): int{
-		foreach($this->players as $playerID => $playerData){
-			if($playerID !== $looserPlayerID){
-				return $playerID;
+		foreach($this->players as $playID => $playerData){
+			if($playID !== $playerID){
+				return $playID;
 			}
 		}
 		return -1;
@@ -116,25 +134,32 @@ class Game{
 		if(count($this->players) !== 2){
 			return false;
 		}
-		$players = shuffle($this->players);
+		$players = $this->players;
+		shuffle($players);
+		var_dump($players);
 		$firstPlayerId = $players[0][0]->getId();
 		$this->players[$firstPlayerId][1] = true;
 		$this->players[$firstPlayerId][2] = "X";
 		$this->players[$firstPlayerId][0]->sendMessage("You start!");
+		$this->players[$firstPlayerId][0]->getInventory()->addItem(new Item(ItemIds::IRON_INGOT));
 		$this->players[$this->getOpponent($firstPlayerId)][2] = "O";
 		$this->players[$this->getOpponent($firstPlayerId)][0]->sendMessage("Your opponent starts!");
+		$this->players[$this->getOpponent($firstPlayerId)][0]->getInventory()->addItem(new Item(ItemIds::GOLD_INGOT));
 		$this->active = true;
 		return true;
 	}
 	
-	public function end(?int $winnerPlayerID): bool{
+	public function end(?int $winnerPlayerID = null): bool{
 		if(!$this->active){
 			return false;
 		}
 		if($winnerPlayerID === null){ //draw
-			
+			foreach($this->players as $playerData){
+				$playerData[0]->sendMessage("Draw!");
+			}
 		}else{
-			$this->players[]
+			$this->players[$winnerPlayerID][0]->sendMessage("You win!");
+			$this->players[$this->getOpponnent($winnerPlayerID)][0]->sendMessage("You lost!");
 		}
 		$this->active = false;
 		$this->arena->deOccupy();

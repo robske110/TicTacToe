@@ -6,7 +6,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 use pocketmine\utils\Config;
-use pocketmine\level\Positon;
+use pocketmine\level\Position;
 
 use robske_110\TTT\Game\GameManager;
 use robske_110\TTT\Game\Arena;
@@ -44,13 +44,13 @@ class TicTacToe extends PluginBase{
 		foreach($this->db->getAll() as $data){
 			$this->gameManager->addArena(
 				new Arena(
-					new Positon(
+					new Position(
 						$data[0][0], $data[0][1], $data[0][2],
-						$this->getServer->getLevelByName($data[0][3])
+						$this->getServer()->getLevelByName($data[0][3])
 					),
-					new Positon(
+					new Position(
 						$data[1][0], $data[1][1], $data[1][2],
-						$this->getServer->getLevelByName($data[1][3])
+						$this->getServer()->getLevelByName($data[1][3])
 					)
 				)
 			);
@@ -85,12 +85,14 @@ class TicTacToe extends PluginBase{
 				[$positions[1]->x, $positions[1]->y, $positions[1]->z, $positions[1]->level->getName()]
 			]
 		);
+		$this->db->save(true);
 	}
 	
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
 		if($command->getName() == "tictactoe arenacreate"){
-			$sender->sendMessage("touch the lower left and then the upper right block of the game board!");
-			$this->listener->arenaCreationSessions[$player->getId()] = [];
+			$sender->sendMessage("Touch the lower left and then the upper right block of the game board!");
+			$this->listener->arenaCreationSessions[$sender->getId()] = [];
+			return true;
 		}
 		return false;
 	}
