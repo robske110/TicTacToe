@@ -1,0 +1,21 @@
+name: TicTacToe
+api: [3.0.0-ALPHA7]
+version: 0.0.1-InDev
+load: POSTWORLD
+main: robske_110\TTT\TicTacToe
+author: robske_110
+website: https://github.com/robske110/TicTacToe
+
+commands:
+ tictactoe arenacreate:
+  description: Creates a TTT arena
+  usage: "/tictactoe arenacreate"
+  permission: TicTacToe.createArenas
+  aliases: [createTTTA]
+
+permissions:
+ TicTacToe:
+  description: "Allows to use all TicTacToe features"
+  children:
+   TicTacToe.createArenas:
+    description: "Users with this permission will be able to create arenas."
