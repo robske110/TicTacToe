@@ -5,12 +5,12 @@ namespace robske_110\TTT;
 use pocketmine\Player;
 
 use robske_110\TTT\Game\Game;
+use robske_110\TTT\Game\Arena;
 
 class PlayerManager{
 	/** @var TicTacToe  */
 	private $main;
-	/** @var array */
-	private $playerIndex;
+
 	/** @var array */
 	private $players;
 	/** @var null|Game */
@@ -20,65 +20,81 @@ class PlayerManager{
 		$this->main = $main;
 	}
 	
-	public function getPlayerById(int $playerId): Player{
+	private function getPlayerById(int $playerID): ?Player{
 		foreach($this->main->getServer()->getOnlinePlayers() as $player){
-			if($playerId === $player->getId()){
+			if($playerID === $player->getId()){
 				return $player;
 			}
 		}
+		return null;
 	}
 	
 	public function getGameForPlayer(int $playerID): ?Game{
-		if(!isset($this->playerIndex[$playerID])){
+		if(!isset($this->players[$playerID])){
 			return null;
 		}
-		return $this->players[$this->playerIndex[$playerID]];
+		return $this->players[$playerID];
 	}
 	
 	/**
 	 * @param int $playerID
 	 */
 	public function addPlayer(int $playerID){
-		if(isset($this->playerIndex[$playerID])){
+		if(isset($this->players[$playerID])){
 			return;
 		}
 		if($this->game === null){
 			if(($arena = $this->main->getGameManager()->getFreeArena()) !== null){
-				$this->players[] = new Game($arena);
-				$this->playerIndex[$playerID] = count($this->players) - 1;
-				$this->players[$this->playerIndex[$playerID]]->addPlayer($this->getPlayerById($playerID));
-				$this->game = $this->players[$this->playerIndex[$playerID]];
+				$this->createGame($arena, $playerID);
 			}else{
-				$this->players[] = null;
-				$this->playerIndex[$playerID] = count($this->players) - 1;
+				$this->players[$playerID] = null;
 			}
+			$this->getPlayerById($playerID)->sendMessage("You have been successfully added to the queue!");
 		}else{
-			$this->players[] = $this->game;
-			$this->playerIndex[$playerID] = count($this->players) - 1;
-			$this->players[$this->playerIndex[$playerID]]->addPlayer($this->getPlayerById($playerID));
-			$this->main->getGameManager()->startGame($this->game);
-			$this->game = null;
+			$this->startGame($playerID);
 		}
-		$this->getPlayerById($playerID)->sendMessage("You have been successfully added to the queue");
 	}
 	
-	public function onGameEnd(Arena $freedArena){
-		/*
-		if(!empty($this->players)){
-			foreach($this->players)aaaa
-		}*/
+	private function createGame(Arena $arena, int $firstPlayerID){
+		$this->game = new Game($arena);
+		$this->players[$firstPlayerID] = $this->game;
+		$this->game->addPlayer($this->getPlayerById($firstPlayerID));
+	}
+	
+	private function startGame(int $secondPlayerID){
+		$this->players[$secondPlayerID] = $this->game;
+		$this->game->addPlayer($this->getPlayerById($secondPlayerID));
+		$this->main->getGameManager()->startGame($this->game);
+		$this->game = null;
+	}
+	
+	public function onGameEnd(Game $game){
+		foreach($game->getPlayers() as $playerID => $playerData){
+			$this->removePlayer($playerID, false);
+		}
+		foreach($this->players as $playerID => $player){
+			if($player === null){
+				if($this->game === null){
+					$this->createGame($game->getArena(), $playerID);
+				}else{
+					$thiss->startGame($playerID);
+				}
+			}
+		}
 	}
 	
 	/**
-	 * @param int $playerID
+	 * @param int  $playerID
+	 * @param bool $endGame
 	 *
 	 * @return bool
 	 */
-	public function removePlayer(int $playerID): bool{
-		if(isset($this->playerIndex[$playerID])){
-			$this->players[$this->playerIndex[$playerID]]->endInverted($playerID);
+	public function removePlayer(int $playerID, bool $endGame = true): bool{
+		if(isset($this->players[$playerID])){
+			if($endGame){
+				$this->players[$playerID]->endInverted($playerID);
+			}
 			unset($this->players[$playerID]);
-			unset($this->playerIndex[$playerID]);
 			return true;
 		}
 		return false;

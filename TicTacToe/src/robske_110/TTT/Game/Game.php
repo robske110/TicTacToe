@@ -2,11 +2,14 @@
 
 namespace robske_110\TTT\Game;
 
-use pocketmine\level\Position;
 use pocketmine\Player;
+use pocketmine\math\Vector3;
+
+use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 
 use pocketmine\item\Item;
-use pocketmine\item\ItemIds;
+use pocketmine\block\Block;
 
 class Game{
 	/** @var Arena */
@@ -27,22 +30,34 @@ class Game{
 		$this->arena->occupy($this);
 	}
 
-	public function onGameMove(int $playerID, $itemFrame){
-		if($this->players[$playerID][1]){
-			if(($pos = $this->getPositionOnMap($itemFrame)) !== null){ //check if valid turn
+	public function onGameMove(int $playerID, Block $itemFrame, Item $item): bool{
+		if(($pos = $this->getPositionOnMap($itemFrame)) !== null){
+			if($this->players[$playerID][1]){
 				if($this->map[$pos[0]][$pos[1]] === ""){
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
 					$this->checkForWin();
+					if(!$this->active){
+						return true;
+					}
+					$this->players[$playerID][1] = false;
+					$opID = $this->getOpponent($playerID);
+					$this->players[$opID][1] = true;
+					$this->players[$opID][0]->sendMessage("It's your turn now!");
+					return true;
 				}else{
 					$this->players[$playerID][0]->sendMessage("That field is already full!");
+					return false;
 				}
+			}else{
+				$this->players[$playerID][0]->sendMessage("It's not your turn!");
+				return false;
 			}
-		}else{
-			$this->players[$playerID][0]->sendMessage("It's not your turn!");
+			return true;
 		}
+	return true;
 	}
 
-	public function getPositionOnMap(Position $pos): ?array{
+	public function getPositionOnMap(Vector3 $pos): ?array{
 		$mapPos = $this->arena->getArea();
 		$posDownLeft = $mapPos[0];
 		$posUpperRight = $mapPos[1];
@@ -51,9 +66,9 @@ class Game{
 			return null;
 		}
 		if($posDownLeft->x === $posUpperRight->x){
-			$horizontalPos = $posDownLeft->x - $pos->x;
-		}elseif($posDownLeft->z === $posUpperRight->z){
 			$horizontalPos = $posDownLeft->z - $pos->z;
+		}elseif($posDownLeft->z === $posUpperRight->z){
+			$horizontalPos = $posDownLeft->x - $pos->x;
 		}else{
 			return null;
 		}
@@ -66,7 +81,7 @@ class Game{
 
 	public function checkForWin(){
 		foreach($this->map as $content){
-			if($content[0] == $content[1] && $content[0] == $content[2]){
+			if($content[0] !== "" && $content[0] === $content[1] && $content[0] === $content[2]){
 				$this->end($this->getPlayerWithSymbol($content[0]));
 			}
 		}
@@ -81,15 +96,15 @@ class Game{
 			$this->end();
 		}
 		for($i = 0; $i < 3; $i++){
-			if($this->map[0][$i] == $this->map[1][1] && $this->map[0][$i] == $this->map[2][$i]){
+			if($this->map[0][$i] !== "" && $this->map[0][$i] === $this->map[1][1] && $this->map[0][$i] === $this->map[2][$i]){
 				$this->end($this->getPlayerWithSymbol($this->map[0][$i]));
 			}
 		}
-		if($this->map[0][0] == $this->map[1][1] && $this->map[0][0] == $this->map[2][2]){ #/
-			$this->end($this->getPlayerWithSymbol($this->map[0][$i]));
+		if($this->map[0][0] !== "" && $this->map[0][0] === $this->map[1][1] && $this->map[0][0] === $this->map[2][2]){ #/
+			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
 		}
-		if($this->map[2][0] == $this->map[1][1] && $this->map[2][0] == $this->map[0][2]){ #\
-			$this->end($this->getPlayerWithSymbol($this->map[0][$i]));
+		if($this->map[2][0] !== "" && $this->map[2][0] === $this->map[1][1] && $this->map[2][0] === $this->map[0][2]){ #\
+			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
 		}
 	}
 
@@ -102,6 +117,15 @@ class Game{
 		return -1;
 	}
 
+	public function getOpponent(int $playerID): int{
+		foreach($this->players as $oppID => $playerData){
+			if($oppID !== $playerID){
+				return $oppID;
+			}
+		}
+		return -1;
+	}
+
     /**
      * @return Arena
      */
@@ -109,18 +133,6 @@ class Game{
 		return $this->arena;
 	}
 	
-	public function endInverted(int $looserPlayerID): bool{
-		$this->end($this->getOpponent($playerID));
-	}
-	
-	public function getOpponent(int $playerID): int{
-		foreach($this->players as $playID => $playerData){
-			if($playID !== $playerID){
-				return $playID;
-			}
-		}
-		return -1;
-	}
 	
 	public function addPlayer(Player $player){
 		$this->players[$player->getId()] = [$player, false];
@@ -130,23 +142,47 @@ class Game{
 		return $this->players;
 	}
 	
+    /**
+     * @return bool isActive
+     */
+	public function isActive(): bool{
+		return $this->active;
+	}
+	
 	public function start(): bool{
 		if(count($this->players) !== 2){
 			return false;
 		}
 		$players = $this->players;
 		shuffle($players);
-		var_dump($players);
-		$firstPlayerId = $players[0][0]->getId();
-		$this->players[$firstPlayerId][1] = true;
-		$this->players[$firstPlayerId][2] = "X";
-		$this->players[$firstPlayerId][0]->sendMessage("You start!");
-		$this->players[$firstPlayerId][0]->getInventory()->addItem(new Item(ItemIds::IRON_INGOT));
-		$this->players[$this->getOpponent($firstPlayerId)][2] = "O";
-		$this->players[$this->getOpponent($firstPlayerId)][0]->sendMessage("Your opponent starts!");
-		$this->players[$this->getOpponent($firstPlayerId)][0]->getInventory()->addItem(new Item(ItemIds::GOLD_INGOT));
+		$p1ID = $players[0][0]->getId();
+		$player1 = $this->players[$p1ID];
+		$p2ID = $this->getOpponent($p1ID);
+		$player2 = $this->players[$p2ID];
+		
+		$this->players[$p1ID][1] = true;
+		$this->players[$p1ID][2] = "X";
+		$this->players[$p2ID][1] = false;
+		$this->players[$p2ID][2] = "O";
+		
+		$player1[0]->sendMessage("Your start!");
+		$inv = $player1[0]->getInventory();
+		$inv->clearAll();
+		$inv->addItem(ItemFactory::get(ItemIds::GOLD_INGOT, 0, 5));
+		$inv->setItem($inv->getHotbarSlotIndex(0), ItemFactory::get(ItemIds::GOLD_INGOT, 0, 5));
+		
+		$player2[0]->sendMessage("Your opponent starts!");
+		$inv = $player2[0]->getInventory();
+		$inv->clearAll();
+		$inv->addItem(ItemFactory::get(ItemIds::IRON_INGOT, 0, 4));
+		$inv->setItem($inv->getHotbarSlotIndex(0), ItemFactory::get(ItemIds::IRON_INGOT, 0, 4));
+		
 		$this->active = true;
 		return true;
+	}
+	
+	public function endInverted(int $looserPlayerID): bool{
+		return $this->end($this->getOpponent($looserPlayerID));
 	}
 	
 	public function end(?int $winnerPlayerID = null): bool{
@@ -158,20 +194,15 @@ class Game{
 				$playerData[0]->sendMessage("Draw!");
 			}
 		}else{
-			$this->players[$winnerPlayerID][0]->sendMessage("You win!");
-			$this->players[$this->getOpponnent($winnerPlayerID)][0]->sendMessage("You lost!");
+			$this->players[$winnerPlayerID][0]->sendMessage("You won!");
+			$this->players[$this->getOpponent($winnerPlayerID)][0]->sendMessage("You lost!");
 		}
 		$this->active = false;
-		$this->arena->deOccupy();
+		$this->arena->deOccupy($this);
+		$this->arena->getMain()->getPlayerManager()->onGameEnd($this);
 		$this->arena = null;
+		$this->players = null;
 		return true;
-	}
-
-    /**
-     * @return bool isActive
-     */
-	public function isActive(): bool{
-		return $this->active;
 	}
 }
 //Theory is when you know something, but it doesn't work. Practice is when something works, but you don't know why. Programmers combine theory and practice: Nothing works and they don't know why!

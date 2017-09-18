@@ -3,26 +3,33 @@
 namespace robske_110\TTT\Game;
 
 use pocketmine\level\Position;
+use pocketmine\math\Vector3;
+
+use robske_110\TTT\TicTacToe;
 
 class Arena{
-	/** @var Location */
+	/** @var Position */
 	private $pos1;
-	/** @var Location */
+	/** @var Position */
 	private $pos2;
-	/** @var Game */
+	/** @var TicTacToe */
+	private $main;
+	
+	/** @var null|Game */
 	private $game;
 	/** @var bool */
 	private $occupied = false;
 	
-	public function __construct(Position $pos1, Position $pos2){
+	public function __construct(Position $pos1, Position $pos2, TicTacToe $main){
 		$this->pos1 = $pos1;
 		$this->pos2 = $pos2;
+		$this->main = $main;
 	}
 
     /**
      * @return Game
      */
-	public function getGame(): Game{
+	public function getGame(): ?Game{
 		return $this->game;
 	}
 
@@ -33,15 +40,56 @@ class Arena{
 		return [$this->pos1, $this->pos2];
 	}
 	
+	public function reset(){
+		if($this->pos1->x === $this->pos2->x){
+			$hStart = min($this->pos1->z, $this->pos2->z);
+			$hStop = max($this->pos1->z, $this->pos2->z);
+			$z = null;
+			$x = $this->pos1->x;
+		}elseif($this->pos1->z === $this->pos2->z){
+			$hStart = min($this->pos1->x, $this->pos2->x);
+			$hStop = max($this->pos1->x, $this->pos2->x);
+			$x = null;
+			$z = $this->pos1->z;
+		}else{
+			$this->main->getLogger()->emergency("Unrecoverable state: ARENA_NOT_2D");
+			return;
+		}
+		$level = $this->pos1->getLevel();
+		$yStart = min($this->pos1->y, $this->pos2->y);
+		$yStop = max($this->pos1->y, $this->pos2->y);
+		for($hi = $hStart; $hi <= $hStop; $hi++){
+			for($yi = $yStart; $yi <= $yStop; $yi++){
+				if($x === null){
+					$vec3 = new Vector3($hi, $yi, $z);
+				}
+				if($z === null){
+					$vec3 = new Vector3($x, $yi, $hi);
+				}
+				$itemFrame = $level->getTile($vec3);
+				$itemFrame->setItem();
+			}
+		}
+	}
+	
 	public function occupy(Game $game){
 		$this->game = $game;
 		$this->occupied = true;
+		$this->reset();
 	}
 	
 	public function deOccupy(Game $game){
 		if($this->game === $game){
 			$this->occupied = false;
+			$this->game = null;
 		}
+	}
+
+    /**
+     * @return TicTacToe
+     */
+	public function getMain(): TicTacToe{
+		return $this->main;
 	}
 
     /**

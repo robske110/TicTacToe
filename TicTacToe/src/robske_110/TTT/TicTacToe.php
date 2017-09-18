@@ -51,7 +51,8 @@ class TicTacToe extends PluginBase{
 					new Position(
 						$data[1][0], $data[1][1], $data[1][2],
 						$this->getServer()->getLevelByName($data[1][3])
-					)
+					),
+					$this
 				)
 			);
 		}
@@ -91,7 +92,7 @@ class TicTacToe extends PluginBase{
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
 		if($command->getName() == "tictactoe arenacreate"){
 			$sender->sendMessage("Touch the lower left and then the upper right block of the game board!");
-			$this->listener->arenaCreationSessions[$sender->getId()] = [];
+			$this->listener->addArenaCreationSessiom($sender->getId());
 			return true;
 		}
 		return false;
