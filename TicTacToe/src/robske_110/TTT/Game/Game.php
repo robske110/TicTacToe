@@ -7,6 +7,7 @@ use pocketmine\math\Vector3;
 
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\block\BlockIds;
 
 use pocketmine\item\Item;
 use pocketmine\block\Block;
@@ -31,11 +32,16 @@ class Game{
 	}
 
 	public function onGameMove(int $playerID, Block $itemFrame, Item $item): bool{
-		if($item->getId())
+		if(!$this->active){
+			return true;
+		}
 		if(($pos = $this->getPositionOnMap($itemFrame)) !== null){
 			var_dump($pos);
 			if($this->players[$playerID][1]){
 				if($this->map[$pos[0]][$pos[1]] === ""){
+					if($item->getId() === BlockIds::AIR){
+						return false;
+					}
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
 					var_dump($this->map);
 					$this->checkForWin();
@@ -57,7 +63,7 @@ class Game{
 			}
 			return true;
 		}
-	return true;
+		return true;
 	}
 
 	public function getPositionOnMap(Vector3 $pos): ?array{
@@ -69,12 +75,18 @@ class Game{
 			return null;
 		}
 		if($posDownLeft->x === $posUpperRight->x){
+			if($posDownLeft->x !== $pos->x){
+				return null;
+			}
 			if($posDownLeft->z > $posUpperRight->z){
 				$horizontalPos = $posDownLeft->z - $pos->z;
 			}elseif($posDownLeft->z < $posUpperRight->z){
 				$horizontalPos = $pos->z - $posDownLeft->z;
 			}
 		}elseif($posDownLeft->z === $posUpperRight->z){
+			if($posDownLeft->z !== $pos->z){
+				return null;
+			} 
 			if($posDownLeft->x > $posUpperRight->x){
 				$horixontalPos = $posDownLeft->x - $pos->x;
 			}elseif($posDownLeft->x < $posUpperRight->x){
@@ -97,7 +109,7 @@ class Game{
 		}
 		$isFull = true;
 		foreach($this->map as $content){
-			if($content[0] !== "" || $content[1] !== "" || $content[2] !== ""){
+			if(!($content[0] !== "" && $content[1] !== "" && $content[2] !== "")){
 				$isFull = false;
 				break;
 			}
@@ -179,13 +191,13 @@ class Game{
 		$inv = $player1[0]->getInventory();
 		$inv->clearAll();
 		$inv->addItem(ItemFactory::get(ItemIds::GOLD_INGOT, 0, 5));
-		$inv->setItem($inv->getHotbarSlotIndex(0), ItemFactory::get(ItemIds::GOLD_INGOT, 0, 5));
+		$inv->setItem(0, ItemFactory::get(ItemIds::GOLD_INGOT, 0, 5));
 		
 		$player2[0]->sendMessage("Your opponent starts!");
 		$inv = $player2[0]->getInventory();
 		$inv->clearAll();
 		$inv->addItem(ItemFactory::get(ItemIds::IRON_INGOT, 0, 4));
-		$inv->setItem($inv->getHotbarSlotIndex(0), ItemFactory::get(ItemIds::IRON_INGOT, 0, 4));
+		$inv->setItem(0, ItemFactory::get(ItemIds::IRON_INGOT, 0, 4));
 		
 		$this->active = true;
 		return true;

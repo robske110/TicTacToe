@@ -1,5 +1,5 @@
 name: TicTacToe
-api: [3.0.0-ALPHA7]
+api: [3.0.0-ALPHA8]
 version: 0.0.1-InDev
 load: POSTWORLD
 main: robske_110\TTT\TicTacToe
