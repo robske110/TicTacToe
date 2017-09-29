@@ -53,6 +53,8 @@ class Arena{
 			$z = $this->pos1->z;
 		}else{
 			$this->main->getLogger()->emergency("Unrecoverable state: ARENA_NOT_2D");
+			$this->game = null;
+			$this->occupied = true; //Prevent any further usages of this arena
 			return;
 		}
 		$level = $this->pos1->getLevel();

@@ -31,10 +31,13 @@ class Game{
 	}
 
 	public function onGameMove(int $playerID, Block $itemFrame, Item $item): bool{
+		if($item->getId())
 		if(($pos = $this->getPositionOnMap($itemFrame)) !== null){
+			var_dump($pos);
 			if($this->players[$playerID][1]){
 				if($this->map[$pos[0]][$pos[1]] === ""){
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
+					var_dump($this->map);
 					$this->checkForWin();
 					if(!$this->active){
 						return true;
@@ -66,14 +69,21 @@ class Game{
 			return null;
 		}
 		if($posDownLeft->x === $posUpperRight->x){
-			$horizontalPos = $posDownLeft->z - $pos->z;
+			if($posDownLeft->z > $posUpperRight->z){
+				$horizontalPos = $posDownLeft->z - $pos->z;
+			}elseif($posDownLeft->z < $posUpperRight->z){
+				$horizontalPos = $pos->z - $posDownLeft->z;
+			}
 		}elseif($posDownLeft->z === $posUpperRight->z){
-			$horizontalPos = $posDownLeft->x - $pos->x;
+			if($posDownLeft->x > $posUpperRight->x){
+				$horixontalPos = $posDownLeft->x - $pos->x;
+			}elseif($posDownLeft->x < $posUpperRight->x){
+				$horixontalPos = $pos->x - $posDownLeft->x;
+			}
 		}else{
 			return null;
 		}
-		$horizontalPos = abs($horizontalPos);
-		if($horizontalPos > 2){
+		if($horizontalPos > 2 || $horizontalPos < 0){
 			return null;
 		}
 		return [$verticalPos, $horizontalPos];
@@ -81,7 +91,7 @@ class Game{
 
 	public function checkForWin(){
 		foreach($this->map as $content){
-			if($content[0] !== "" && $content[0] === $content[1] && $content[0] === $content[2]){
+			if($content[0] !== "" && $content[0] === $content[1] && $content[0] === $content[2]){ //horizontal row
 				$this->end($this->getPlayerWithSymbol($content[0]));
 			}
 		}
@@ -96,7 +106,7 @@ class Game{
 			$this->end();
 		}
 		for($i = 0; $i < 3; $i++){
-			if($this->map[0][$i] !== "" && $this->map[0][$i] === $this->map[1][1] && $this->map[0][$i] === $this->map[2][$i]){
+			if($this->map[0][$i] !== "" && $this->map[0][$i] === $this->map[1][$i] && $this->map[0][$i] === $this->map[2][$i]){ //vertical row
 				$this->end($this->getPlayerWithSymbol($this->map[0][$i]));
 			}
 		}
