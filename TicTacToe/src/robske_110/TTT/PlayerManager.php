@@ -77,7 +77,7 @@ class PlayerManager{
 				if($this->game === null){
 					$this->createGame($game->getArena(), $playerID);
 				}else{
-					$thiss->startGame($playerID);
+					$this->startGame($playerID);
 				}
 			}
 		}

@@ -31,7 +31,7 @@ class TicTacToe extends PluginBase{
 	 * x.C.x Feature additions, usually not breaking. (Use this if you require certain new features)
 	 * x.x.C BugFixes on API related functions, not breaking.
 	 */
-	const API_VERSION = "0.0.1";
+	const API_VERSION = "0.1.0";
 
 	public function onEnable(){
 		@mkdir($this->getDataFolder());
