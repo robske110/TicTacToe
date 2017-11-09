@@ -92,7 +92,7 @@ class TicTacToe extends PluginBase{
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
 		if($command->getName() == "tictactoe arenacreate"){
 			$sender->sendMessage("Touch the lower left and then the upper right block of the game board!");
-			$this->listener->addArenaCreationSessiom($sender->getId());
+			$this->listener->addArenaCreationSession($sender->getId());
 			return true;
 		}
 		return false;
