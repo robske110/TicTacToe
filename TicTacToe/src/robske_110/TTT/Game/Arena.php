@@ -20,7 +20,7 @@ class Arena{
 	/** @var bool */
 	private $occupied = false;
 	
-	public function __construct(Position $pos1, Position $pos2, TicTacToe $main){
+	public function __construct(Position $pos1, Position $pos2, EventListener $main){
 		$this->pos1 = $pos1;
 		$this->pos2 = $pos2;
 		$this->main = $main;
