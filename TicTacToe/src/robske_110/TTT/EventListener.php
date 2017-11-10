@@ -57,6 +57,9 @@ class EventListener implements Listener{
 		}	
 	}
 	
+	/**
+	 * @param int $playerID
+	 */
 	public function addArenaCreationSession(int $playerID){
 		$this->arenaCreationSessions[$playerID] = [];
 	}
