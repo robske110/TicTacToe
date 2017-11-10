@@ -2,6 +2,7 @@
 
 namespace robske_110\TTT;
 
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
@@ -27,7 +28,7 @@ class TicTacToe extends PluginBase{
 	 * or with @link{$this->isCompatible}
 	 * (This only tracks changes to non @internal marked stuff)
 	 * If C changes:
-	 * C.x.x Breaking changes, disable your plugin with an error message or disable any PP API usage.
+	 * C.x.x Breaking changes, disable your plugin with an error message or disable any TTT API usage.
 	 * x.C.x Feature additions, usually not breaking. (Use this if you require certain new features)
 	 * x.x.C BugFixes on API related functions, not breaking.
 	 */
@@ -60,7 +61,7 @@ class TicTacToe extends PluginBase{
     
 	/**
 	 * For extension plugins to test if they are compatible with the version
-	 * of PP installed.
+	 * of TTT installed.
 	 *
 	 * @param string $apiVersion The API version your plugin was last tested on.
 	 *
@@ -91,8 +92,10 @@ class TicTacToe extends PluginBase{
 	
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
 		if($command->getName() == "tictactoe arenacreate"){
-			$sender->sendMessage("Touch the lower left and then the upper right block of the game board!");
-			$this->listener->addArenaCreationSession($sender->getId());
+			if($sender instanceof Player){
+				$sender->sendMessage("Touch the lower left and then the upper right block of the game board!");
+				$this->listener->addArenaCreationSession($sender->getId());
+			}
 			return true;
 		}
 		return false;

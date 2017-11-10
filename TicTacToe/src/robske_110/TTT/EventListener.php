@@ -9,7 +9,6 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\tile\Sign;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
-use pocketmine\network\mcpe\protocol\BatchPacket;
 
 use robske_110\TTT\Game\Game;
 use robske_110\TTT\Game\Arena;
@@ -35,7 +34,9 @@ class EventListener implements Listener{
 	public function onItemFrameItemRemove(DataPacketReceiveEvent $event){
 		if($event->getPacket() instanceof ItemFrameDropItemPacket){
 			if(($game = $this->main->getPlayerManager()->getGameForPlayer($event->getPlayer()->getId())) instanceof Game){
-				if($game->getPositionOnMap(new Vector3($event->getPacket()->x, $event->getPacket()->y, $event->getPacket()->z)) !== null){
+				/** @var ItemFrameDropItemPacket $pck */
+				$pck = $event->getPacket();
+				if($game->getPositionOnMap(new Vector3($pck->x, $pck->y, $pck->z)) !== null){
 					$event->setCancelled();
 				}
 			}
@@ -73,7 +74,7 @@ class EventListener implements Listener{
 						$player->sendMessage("Attempted to create invalid arena!");
 					}
 					$this->main->getGameManager()->addArena(
-						new Arena($aCS[0], $aCS[1], $this)
+						new Arena($aCS[0], $aCS[1], $this->main)
 					);
 					$this->main->saveArena($aCS);
 					$player->sendMessage("Arena created succesfully!");
