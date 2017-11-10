@@ -20,6 +20,10 @@ class PlayerManager{
 		$this->main = $main;
 	}
 	
+	/**
+	 * @param int $playerID
+	 * @return null|Player
+	 */
 	private function getPlayerById(int $playerID): ?Player{
 		foreach($this->main->getServer()->getOnlinePlayers() as $player){
 			if($playerID === $player->getId()){
@@ -29,6 +33,10 @@ class PlayerManager{
 		return null;
 	}
 	
+	/**
+	 * @param int $playerID
+	 * @return null|Game
+	 */
 	public function getGameForPlayer(int $playerID): ?Game{
 		if(!isset($this->players[$playerID])){
 			return null;
@@ -55,12 +63,19 @@ class PlayerManager{
 		}
 	}
 	
+	/**
+	 * @param Arena $arena
+	 * @param int $firstPlayerID
+	 */
 	private function createGame(Arena $arena, int $firstPlayerID){
 		$this->game = new Game($arena);
 		$this->players[$firstPlayerID] = $this->game;
 		$this->game->addPlayer($this->getPlayerById($firstPlayerID));
 	}
 	
+	/**
+	 * @param int $secondPlayerID
+	 */
 	private function startGame(int $secondPlayerID){
 		$this->players[$secondPlayerID] = $this->game;
 		$this->game->addPlayer($this->getPlayerById($secondPlayerID));
@@ -68,6 +83,10 @@ class PlayerManager{
 		$this->game = null;
 	}
 	
+	/**
+	 * @internal
+	 * @param Game $game
+	 */
 	public function onGameEnd(Game $game){
 		foreach($game->getPlayers() as $playerID => $playerData){
 			$this->removePlayer($playerID, false);

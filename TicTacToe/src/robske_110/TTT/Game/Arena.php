@@ -5,6 +5,7 @@ namespace robske_110\TTT\Game;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 
+use pocketmine\tile\ItemFrame;
 use robske_110\TTT\TicTacToe;
 
 class Arena{
@@ -62,24 +63,38 @@ class Arena{
 		$yStop = max($this->pos1->y, $this->pos2->y);
 		for($hi = $hStart; $hi <= $hStop; $hi++){
 			for($yi = $yStart; $yi <= $yStop; $yi++){
+				$vec3 = null;
 				if($x === null){
 					$vec3 = new Vector3($hi, $yi, $z);
 				}
 				if($z === null){
 					$vec3 = new Vector3($x, $yi, $hi);
 				}
+				if($vec3 === null){
+					continue;
+				}
 				$itemFrame = $level->getTile($vec3);
-				$itemFrame->setItem();
+				if($itemFrame instanceof ItemFrame){
+					$itemFrame->setItem();
+				}
 			}
 		}
 	}
 	
+	/**
+	 * Occupies/Associates an active Game with this arena.
+	 * @param Game $game
+	 */
 	public function occupy(Game $game){
 		$this->game = $game;
 		$this->occupied = true;
 		$this->reset();
 	}
 	
+	/**
+	 * De-Occupies/Removes an ended Game from this arena.
+	 * @param Game $game
+	 */
 	public function deOccupy(Game $game){
 		if($this->game === $game){
 			$this->occupied = false;

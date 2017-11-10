@@ -5,18 +5,31 @@ namespace robske_110\TTT\Game;
 use robske_110\TTT\TicTacToe;
 
 class GameManager{
+	/** @var TicTacToe  */
 	private $main;
+	/** @var Game[]  */
 	private $games = [];
+	/** @var Arena[]  */
 	private $arenas = [];
 	
 	public function __construct(TicTacToe $main){
 		$this->main = $main;
 	}
 	
+	/**
+	 * Adds an Arena.
+	 *
+	 * @param Arena $arena
+	 */
 	public function addArena(Arena $arena){
 		$this->arenas[] = $arena;
 	}
 	
+	/**
+	 * Gets a Arena, which is available for a new Game.
+	 *
+	 * @return null|Arena
+	 */
 	public function getFreeArena(): ?Arena{
 		foreach($this->arenas as $arena){
 			if(!$arena->isOccupied()){
@@ -27,7 +40,7 @@ class GameManager{
 	}
 	
 	/**
-	 * @param RenderJob $renderJob
+	 * @param Game $game
 	 */
 	public function startGame(Game $game){
 		$this->games[] = $game;

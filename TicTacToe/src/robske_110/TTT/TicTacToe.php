@@ -79,6 +79,9 @@ class TicTacToe extends PluginBase{
 		return true;
 	}
 	
+	/**
+	 * @param array $positions
+	 */
 	public function saveArena(array $positions){
 		$this->db->set(
 			count($this->db->getAll()),

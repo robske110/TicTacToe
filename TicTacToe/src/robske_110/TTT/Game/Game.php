@@ -17,7 +17,7 @@ class Game{
 	private $arena;
 	/** @var bool */
 	private $active = false;
-	/** @var array */
+	/** @var Player[][] */
 	private $players;
 	/** @var array */
 	private $map = [
@@ -30,7 +30,15 @@ class Game{
 		$this->arena = $arena;
 		$this->arena->occupy($this);
 	}
-
+	
+	/**
+	 * @internal
+	 * @param int $playerID
+	 * @param Block $itemFrame
+	 * @param Item $item
+	 *
+	 * @return bool
+	 */
 	public function onGameMove(int $playerID, Block $itemFrame, Item $item): bool{
 		if(!$this->active){
 			return true;
@@ -61,11 +69,16 @@ class Game{
 				$this->players[$playerID][0]->sendMessage("It's not your turn!");
 				return false;
 			}
-			return true;
 		}
 		return true;
 	}
-
+	
+	/**
+	 * @internal
+	 * @param Vector3 $pos
+	 *
+	 * @return array|null
+	 */
 	public function getPositionOnMap(Vector3 $pos): ?array{
 		$mapPos = $this->arena->getArea();
 		$posDownLeft = $mapPos[0];
@@ -74,6 +87,7 @@ class Game{
 		if($verticalPos > 2 || $verticalPos < 0){
 			return null;
 		}
+		$horizontalPos = 3;
 		if($posDownLeft->x === $posUpperRight->x){
 			if($posDownLeft->x !== $pos->x){
 				return null;
@@ -88,9 +102,9 @@ class Game{
 				return null;
 			} 
 			if($posDownLeft->x > $posUpperRight->x){
-				$horixontalPos = $posDownLeft->x - $pos->x;
+				$horizontalPos = $posDownLeft->x - $pos->x;
 			}elseif($posDownLeft->x < $posUpperRight->x){
-				$horixontalPos = $pos->x - $posDownLeft->x;
+				$horizontalPos = $pos->x - $posDownLeft->x;
 			}
 		}else{
 			return null;
@@ -100,8 +114,8 @@ class Game{
 		}
 		return [$verticalPos, $horizontalPos];
 	}
-
-	public function checkForWin(){
+	
+	private function checkForWin(){
 		foreach($this->map as $content){
 			if($content[0] !== "" && $content[0] === $content[1] && $content[0] === $content[2]){ //horizontal row
 				$this->end($this->getPlayerWithSymbol($content[0]));
@@ -129,7 +143,12 @@ class Game{
 			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
 		}
 	}
-
+	
+	/**
+	 * @param string $symbol Gets the playerID for the player with the specified symbol ('X' / 'O')
+	 *
+	 * @return int PlayerID
+	 */
 	public function getPlayerWithSymbol(string $symbol): int{
 		foreach($this->players as $playerID => $playerData){
 			if($playerData[2] === $symbol){
@@ -138,7 +157,12 @@ class Game{
 		}
 		return -1;
 	}
-
+	
+	/**
+	 * @param int $playerID Gets the opponent (basically the other player) in this game for the player with this playerID.
+ 	 *
+	 * @return int PlayerID
+	 */
 	public function getOpponent(int $playerID): int{
 		foreach($this->players as $oppID => $playerData){
 			if($oppID !== $playerID){
@@ -151,16 +175,21 @@ class Game{
     /**
      * @return Arena
      */
-	public function getArena(){
+	public function getArena(): Arena{
 		return $this->arena;
 	}
 	
-	
+	/**
+	 * @param Player $player
+	 */
 	public function addPlayer(Player $player){
 		$this->players[$player->getId()] = [$player, false];
 	}
 	
-	public function getPlayers(){
+	/**
+	 * @return Player[][]
+	 */
+	public function getPlayers(): array{
 		return $this->players;
 	}
 	
@@ -171,6 +200,11 @@ class Game{
 		return $this->active;
 	}
 	
+	/**
+	 * @return bool
+	 *
+	 * @throws \TypeError
+	 */
 	public function start(): bool{
 		if(count($this->players) !== 2){
 			return false;
@@ -203,10 +237,20 @@ class Game{
 		return true;
 	}
 	
+	/**
+	 * @param int $looserPlayerID The player who lost.
+	 *
+	 * @return bool If the player could be found, the opposite player could be found and the game could be ended.
+	 */
 	public function endInverted(int $looserPlayerID): bool{
 		return $this->end($this->getOpponent($looserPlayerID));
 	}
 	
+	/**
+	 * @param int|null $winnerPlayerID
+	 *
+	 * @return bool If the player could be found, the game was active and the game could be ended.
+	 */
 	public function end(?int $winnerPlayerID = null): bool{
 		if(!$this->active){
 			return false;
