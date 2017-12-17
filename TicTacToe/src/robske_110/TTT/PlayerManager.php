@@ -111,7 +111,9 @@ class PlayerManager{
 	public function removePlayer(int $playerID, bool $endGame = true): bool{
 		if(isset($this->players[$playerID])){
 			if($endGame){
-				$this->players[$playerID]->endInverted($playerID);
+				if($this->players[$playerID] instanceof Game){
+					$this->players[$playerID]->endInverted($playerID);
+				}
 			}
 			unset($this->players[$playerID]);
 			return true;
