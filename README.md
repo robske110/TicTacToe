@@ -20,7 +20,7 @@ Example:
 ```php
 /** @var robske_110\TTT\TicTacToe $ticTacToe */
 if(!$ticTacToe->isCompatible("0.1.0")){
-   	$this->getLogger()->critical("Your version of TicTacToe is not compatible with this plugin);
+	$this->getLogger()->critical("Your version of TicTacToe is not compatible with this plugin");
 	$this->getServer()->getPluginManager()->disablePlugin($this);
 	return;
 }
