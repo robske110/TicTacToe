@@ -12,7 +12,7 @@ class PlayerManager{
 	private $main;
 
 	/** @var array */
-	private $players;
+	private $players = [];
 	/** @var null|Game */
 	private $game;
 	
@@ -48,7 +48,7 @@ class PlayerManager{
 	 * @param int $playerID
 	 */
 	public function addPlayer(int $playerID){
-		if(isset($this->players[$playerID])){
+		if(array_key_exists($playerID, $this->players)){
 			return;
 		}
 		if($this->game === null){
@@ -91,12 +91,16 @@ class PlayerManager{
 		foreach($game->getPlayers() as $playerID => $playerData){
 			$this->removePlayer($playerID, false);
 		}
+		$this->useFreedArena($game->getArena());
+	}
+	
+	public function useFreedArena(Arena $arena){
 		foreach($this->players as $playerID => $player){
 			if($player === null){
 				if($this->game === null){
-					$this->createGame($game->getArena(), $playerID);
+					$this->createGame($arena, $playerID);
 				}else{
-					$this->startGame($playerID);
+					$this->startGame($playerID); //Is this even required?!
 				}
 			}
 		}
@@ -112,7 +116,14 @@ class PlayerManager{
 		if(isset($this->players[$playerID])){
 			if($endGame){
 				if($this->players[$playerID] instanceof Game){
-					$this->players[$playerID]->endInverted($playerID);
+					if(!$this->players[$playerID]->endInverted($playerID)){
+						if($this->players[$playerID] === $this->game){
+							$this->game->getArena()->deOccupy($this->game);
+							$this->game = null;
+						}else{
+							$this->main->getLogger()->critical("TicTacToe: A player left while being in an inactive game that was not awaiting players!"); //Should not happen.
+						}
+					}
 				}
 			}
 			unset($this->players[$playerID]);

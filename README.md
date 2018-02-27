@@ -5,9 +5,9 @@ A PocketMine game plugin which provides a way to play TicTacToe with the help of
 
 ## Usage:
 Anyone with the permission `TicTacToe.createArenas` can create an Arena with the "tictactoe arenacreate" command.
-It will ask you to tap the lower left and then the upper right corner. Don't dare to get this wrong, I have no idea what will happen.
+It will ask you to tap the lower left and then the upper right corner of the Game Board. The Game Board currently only supports the classic 3x3 size.
 
-Now create a sign where the first line is [TTT] (you can create multiple signs and the content of the remaining 3 lines can be anything). Every player clicking on it will get put into the queue (2 players are required for one game).
+Now create a sign where the first line is `[TTT]` (you can create multiple signs and the content of the remaining 3 lines can be anything). Every player clicking on it will get put into the queue (2 players are required for one game).
 
 ## API:
 **This plugin does provide quite useful API, which is mostly home in GameManager and PlayerManager.**

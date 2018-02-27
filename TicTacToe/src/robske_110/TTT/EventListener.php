@@ -74,13 +74,14 @@ class EventListener implements Listener{
 				$aCS = $this->arenaCreationSessions[$playerID];
 				if(count($aCS) >= 2){
 					if($aCS[0]->x === $aCS[1]->x && $aCS[0]->z === $aCS[1]->z){
-						$player->sendMessage("Attempted to create invalid arena!");
+						$player->sendMessage("Attempted to create an invalid arena!");
 					}
 					$this->main->getGameManager()->addArena(
 						new Arena($aCS[0], $aCS[1], $this->main)
 					);
 					$this->main->saveArena($aCS);
 					$player->sendMessage("Arena created succesfully!");
+					$this->main->getPlayerManager()->useFreedArena($this->main->getGameManager()->getFreeArena());
 					unset($this->arenaCreationSessions[$playerID]);
 				}
 			}

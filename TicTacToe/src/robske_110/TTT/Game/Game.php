@@ -44,14 +44,14 @@ class Game{
 			return true;
 		}
 		if(($pos = $this->getPositionOnMap($itemFrame)) !== null){
-			var_dump($pos);
+			#var_dump($pos);
 			if($this->players[$playerID][1]){
 				if($this->map[$pos[0]][$pos[1]] === ""){
 					if($item->getId() === BlockIds::AIR){
 						return false;
 					}
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
-					var_dump($this->map);
+					#var_dump($this->map);
 					$this->checkForWin();
 					if(!$this->active){
 						return true;
@@ -187,7 +187,7 @@ class Game{
 	}
 	
 	/**
-	 * @return Player[][]
+	 * @return array [playerID => [Player, hasTurn, symbol ('X' or 'O')]
 	 */
 	public function getPlayers(): array{
 		return $this->players;
@@ -202,8 +202,6 @@ class Game{
 	
 	/**
 	 * @return bool
-	 *
-	 * @throws \TypeError
 	 */
 	public function start(): bool{
 		if(count($this->players) !== 2){
@@ -254,6 +252,9 @@ class Game{
 	public function end(?int $winnerPlayerID = null): bool{
 		if(!$this->active){
 			return false;
+		}
+		foreach($this->players as $playerData){
+			$playerData[0]->getInventory()->clearAll();
 		}
 		if($winnerPlayerID === null){ //draw
 			foreach($this->players as $playerData){
