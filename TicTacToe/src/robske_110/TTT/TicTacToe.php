@@ -43,6 +43,12 @@ class TicTacToe extends PluginBase{
 		$this->playerManager = new PlayerManager($this);
 		$this->gameManager = new GameManager($this);
 		foreach($this->db->getAll() as $data){
+			if(!$this->getServer()->isLevelLoaded($data[0][3])){
+				if(!$this->getServer()->loadLevel($data[0][3])){
+					$this->getLogger()->notice("Could not load Arena in level '".$data[0][3]."': Level not found!");
+					continue;
+				}
+			}
 			$this->gameManager->addArena(
 				new Arena(
 					new Position(
@@ -80,14 +86,14 @@ class TicTacToe extends PluginBase{
 	}
 	
 	/**
-	 * @param array $positions
+	 * @param Position[] $positions
 	 */
 	public function saveArena(array $positions){
 		$this->db->set(
 			count($this->db->getAll()),
 			[
-				[$positions[0]->x, $positions[0]->y, $positions[0]->z, $positions[0]->level->getName()],
-				[$positions[1]->x, $positions[1]->y, $positions[1]->z, $positions[1]->level->getName()]
+				[$positions[0]->x, $positions[0]->y, $positions[0]->z, $positions[0]->level->getFolderName()],
+				[$positions[1]->x, $positions[1]->y, $positions[1]->z, $positions[1]->level->getFolderName()]
 			]
 		);
 		$this->db->save(true);

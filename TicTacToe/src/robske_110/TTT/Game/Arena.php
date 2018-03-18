@@ -35,7 +35,7 @@ class Arena{
 	}
 
     /**
-     * @return array
+     * @return Position[]
      */
 	public function getArea(): array{
 		return [$this->pos1, $this->pos2];
@@ -53,9 +53,9 @@ class Arena{
 			$x = null;
 			$z = $this->pos1->z;
 		}else{
-			$this->main->getLogger()->emergency("An Arena got permanently disabled due to: ARENA_NOT_2D");
-			$this->game = null;
 			$this->occupied = true; //Prevent any further usages of this arena
+			$this->main->getLogger()->critical("An Arena got permanently disabled due to: ARENA_NOT_2D");
+			$this->game = null;
 			return;
 		}
 		$level = $this->pos1->getLevel();
@@ -84,11 +84,22 @@ class Arena{
 	/**
 	 * Occupies/Associates an active Game with this arena.
 	 * @param Game $game
+	 *
+	 * @return bool
 	 */
-	public function occupy(Game $game){
+	public function occupy(Game $game): bool{
+		if($this->occupied){
+			return false;
+		}
+		if($this->pos1->getLevel() === null){
+			$this->occupied = true;
+			$this->main->getLogger()->critical("An Arena got permanently disabled due to: ARENA_LEVEL_NOT_LOADED");
+			return false;
+		}
 		$this->game = $game;
 		$this->occupied = true;
 		$this->reset();
+		return true;
 	}
 	
 	/**

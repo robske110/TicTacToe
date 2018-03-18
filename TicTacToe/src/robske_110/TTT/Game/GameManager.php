@@ -43,6 +43,11 @@ class GameManager{
 	 * @param Game $game
 	 */
 	public function startGame(Game $game){
+		if($game->getArena()->getArea()[0]->getLevel() === null){
+			$this->main->getLogger()->emergency("A level for an Arena got unloaded at a very bad time! TicTacToe will be disabled!");
+			$this->main->getServer()->getPluginManager()->disablePlugin($this->main);
+			return;
+		}
 		$this->games[] = $game;
 		foreach($game->getPlayers() as $playerId => $playerData){
 			$playerData[0]->teleport($game->getArena()->getArea()[0]);

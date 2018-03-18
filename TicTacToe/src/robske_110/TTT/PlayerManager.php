@@ -52,9 +52,14 @@ class PlayerManager{
 			return;
 		}
 		if($this->game === null){
-			if(($arena = $this->main->getGameManager()->getFreeArena()) !== null){
-				$this->createGame($arena, $playerID);
-			}else{
+			$createdGame = false;
+			while(($arena = $this->main->getGameManager()->getFreeArena()) !== null){
+				if($this->createGame($arena, $playerID)){
+					$createdGame = true;
+					break;
+				}
+			}
+			if(!$createdGame){
 				$this->players[$playerID] = null;
 			}
 			$this->getPlayerById($playerID)->sendMessage("You have been successfully added to the queue!");
@@ -66,11 +71,19 @@ class PlayerManager{
 	/**
 	 * @param Arena $arena
 	 * @param int $firstPlayerID
+	 *
+	 * @return bool
 	 */
-	private function createGame(Arena $arena, int $firstPlayerID){
-		$this->game = new Game($arena);
+	private function createGame(Arena $arena, int $firstPlayerID): bool{
+		try{
+			$this->game = new Game($arena);
+		}catch(\InvalidStateException $exception){
+			$this->main->getLogger()->notice($exception->getMessage());
+			return false;
+		}
 		$this->players[$firstPlayerID] = $this->game;
 		$this->game->addPlayer($this->getPlayerById($firstPlayerID));
+		return true;
 	}
 	
 	/**

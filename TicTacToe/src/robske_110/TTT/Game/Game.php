@@ -28,7 +28,9 @@ class Game{
 	
 	public function __construct(Arena $arena){
 		$this->arena = $arena;
-		$this->arena->occupy($this);
+		if(!$this->arena->occupy($this)){
+			throw new \InvalidStateException("A Game has been attempted to be constructed with an Arena which is either occupied or (more likely) its level got unloaded!");
+		}
 	}
 	
 	/**

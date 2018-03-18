@@ -76,6 +76,9 @@ class EventListener implements Listener{
 					if($aCS[0]->x === $aCS[1]->x && $aCS[0]->z === $aCS[1]->z){
 						$player->sendMessage("Attempted to create an invalid arena!");
 					}
+					if($aCS[0]->level->getFolderName() !== $aCS[1]->level->getFolderName()){
+						$player->sendMessage("Attempted to create an invalid arena: Both positions must be in the same level!");
+					}
 					$this->main->getGameManager()->addArena(
 						new Arena($aCS[0], $aCS[1], $this->main)
 					);
