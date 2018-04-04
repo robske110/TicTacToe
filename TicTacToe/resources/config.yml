@@ -1,0 +1,26 @@
+---
+on-game-end:
+  # teleports the player to the default level. If false is given a teleport-level needs to be supplied,
+  # otherwise teleporting will be disabled.
+  teleport-default-level: true
+  # teleports the player to the given level. This option is only respected if teleport-default-level is false.
+  teleport-level: ""
+  # the position (X, Y, Z) of the teleport in the level specified above. Supply ~ for all three to use the spawn pos.
+  teleport-position:
+    - ~
+    - ~
+    - ~
+
+### NOT IMPLEMENTED ###
+time-limit:
+  # max-time in ticks (-1 or ~ for infinite)
+  max-time: -1
+  display:
+    # how time should be displayed in chat (only to the players):
+    # chat-regular (-1 or ~ to disable) in what interval to chat the time in ticks
+    chat-regular: -1
+    # chat-towards-end if there should be (additional) chat messages towards the end (75% of time, 10 and 5 sec before)
+    chat-towards-end: true
+    # display time in popup
+    popup: true
+...

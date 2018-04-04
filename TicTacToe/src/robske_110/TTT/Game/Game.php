@@ -189,7 +189,7 @@ class Game{
 	}
 	
 	/**
-	 * @return array [playerID => [Player, hasTurn, symbol ('X' or 'O')]
+	 * @return array [playerID => [Player, hasTurn, symbol ('X' or 'O')]]
 	 */
 	public function getPlayers(): array{
 		return $this->players;

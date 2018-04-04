@@ -2,6 +2,7 @@
 
 namespace robske_110\TTT;
 
+use pocketmine\level\Level;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
@@ -13,6 +14,22 @@ use robske_110\TTT\Game\GameManager;
 use robske_110\TTT\Game\Arena;
 
 class TicTacToe extends PluginBase{
+	const DEFAULT_CFG_VALUES = [
+		"on-game-end" => [
+			"teleport-default-level" => true,
+			"teleport-level" => "",
+			"teleport-position" => [null, null, null]
+		],
+		"time-limit" => [
+			"max-time" => -1,
+			"display" => [
+				"chat-interval" => -1,
+				"chat-towards-end" => true,
+				"popup" => true
+			]
+		]
+	];
+	
 	/** @var Config */
 	private $db;
 	
@@ -37,6 +54,9 @@ class TicTacToe extends PluginBase{
 	public function onEnable(){
 		@mkdir($this->getDataFolder());
 		$this->db = new Config($this->getDataFolder()."TTTdb.yml", Config::YAML, []); //TODO:betterDB
+		$this->saveDefaultConfig();
+		$this->validateConfig();
+		$this->getConfig()->save();
 		
 		$this->listener = new EventListener($this);
 		$this->getServer()->getPluginManager()->registerEvents($this->listener, $this);
@@ -63,8 +83,70 @@ class TicTacToe extends PluginBase{
 				)
 			);
 		}
+		$this->processConfig();
 	}
-    
+	
+	/**
+	 * @internal
+	 * Sets missing keys in the config to their default value
+	 */
+	private function validateConfig(){
+		$cfg = $this->getConfig();
+		$this->populateVals(self::DEFAULT_CFG_VALUES, $cfg);
+	}
+	
+	/**
+	 * @internal
+	 * Populates the given key with a key => val association
+	 *
+	 * @param array $vals
+	 * @param Config $cfg
+	 * @param string $oKey
+	 */
+	private function populateVals(array $vals, Config $cfg, string $oKey = ""){
+		foreach($vals as $key => $val){
+			if(is_array($val)){
+				$this->populateVals($val, $cfg,$oKey.$key);
+			}
+			if(!$cfg->exists($key)){
+				$cfg->set($oKey.$key, $val);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the config options on the various Managers
+	 */
+	private function processConfig(){
+		$onGameEnd = $this->getConfig()->get("on-game-end");
+		$level = null;
+		if($onGameEnd["teleport-default-level"]){
+			$level = $this->getServer()->getDefaultLevel();
+		}elseif($onGameEnd["teleport-level"] !== ""){
+			$level = $this->getServer()->getLevelByName($onGameEnd["teleport-level"]);
+			if(!$level instanceof Level){
+				$this->getLogger()->warning(
+					"Could not find the level ".$onGameEnd["teleport-level"].
+					". Please ensure that that level exists and you have specified the folder name of the level!"
+				);
+				$level = null;
+			}
+		}
+		if($level === null){
+			$this->gameManager->setOnGameEndPosition(null);
+		}else{
+			$teleportPosition = $onGameEnd["teleport-position"];
+			if($teleportPosition[0] === null || $teleportPosition[1] === null | $teleportPosition[2] === null){
+				$this->gameManager->setOnGameEndPosition($level->getSafeSpawn());
+			}else{
+				$this->gameManager->setOnGameEndPosition(new Position(
+					$teleportPosition[0], $teleportPosition[1], $teleportPosition[2],
+					$level
+				));
+			}
+		}
+	}
+	
 	/**
 	 * For extension plugins to test if they are compatible with the version
 	 * of TTT installed.

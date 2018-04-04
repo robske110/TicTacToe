@@ -2,6 +2,7 @@
 
 namespace robske_110\TTT\Game;
 
+use pocketmine\level\Position;
 use robske_110\TTT\TicTacToe;
 
 class GameManager{
@@ -11,6 +12,8 @@ class GameManager{
 	private $games = [];
 	/** @var Arena[]  */
 	private $arenas = [];
+	/** @var Position|null */
+	private $onGameEndPos = null;
 	
 	public function __construct(TicTacToe $main){
 		$this->main = $main;
@@ -49,10 +52,30 @@ class GameManager{
 			return;
 		}
 		$this->games[] = $game;
-		foreach($game->getPlayers() as $playerId => $playerData){
+		foreach($game->getPlayers() as $playerData){
 			$playerData[0]->teleport($game->getArena()->getArea()[0]);
 		}
 		$game->start();
+	}
+	
+	/**
+	 * @param Position|null $pos Sets the onGameEnd Position. If null is supplied, will not teleport after a game ends.
+	 */
+	public function setOnGameEndPosition(?Position $pos){
+	
+	}
+	
+	/**
+	 * @internal
+	 *
+	 * @param Game $game
+	 */
+	public function endGame(Game $game){
+		if($this->onGameEndPos !== null){
+			foreach($game->getPlayers() as $playerData){
+				$playerData[0]->teleport($this->onGameEndPos);
+			}
+		}
 	}
 }
 //Theory is when you know something, but it doesn't work. Practice is when something works, but you don't know why. Programmers combine theory and practice: Nothing works and they don't know why!
