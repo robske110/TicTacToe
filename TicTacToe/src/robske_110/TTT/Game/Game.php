@@ -269,6 +269,7 @@ class Game{
 		$this->active = false;
 		$this->arena->deOccupy($this);
 		$this->arena->getMain()->getPlayerManager()->onGameEnd($this);
+		$this->arena->getMain()->getGameManager()->endGame($this);
 		$this->arena = null;
 		$this->players = null;
 		return true;

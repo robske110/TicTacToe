@@ -62,7 +62,7 @@ class GameManager{
 	 * @param Position|null $pos Sets the onGameEnd Position. If null is supplied, will not teleport after a game ends.
 	 */
 	public function setOnGameEndPosition(?Position $pos){
-	
+		$this->onGameEndPos = $pos;
 	}
 	
 	/**
