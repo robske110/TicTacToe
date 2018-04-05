@@ -17,9 +17,9 @@ time-limit:
   max-time: -1
   display:
     # how time should be displayed in chat (only to the players):
-    # chat-regular (-1 or ~ to disable) in what interval to chat the time in ticks
-    chat-regular: -1
-    # chat-towards-end if there should be (additional) chat messages towards the end (75% of time, 10 and 5 sec before)
+    # in what interval to chat the time in ticks (-1 or ~ to disable)
+    chat-interval: -1
+    # if there should be (additional) chat messages towards the end (75% of time, 10 and 5 sec before)
     chat-towards-end: true
     # display time in popup
     popup: true

@@ -56,7 +56,7 @@ class TicTacToe extends PluginBase{
 		$this->db = new Config($this->getDataFolder()."TTTdb.yml", Config::YAML, []); //TODO:betterDB
 		$this->saveDefaultConfig();
 		$this->validateConfig();
-		$this->getConfig()->save();
+		#$this->getConfig()->save(); //TODO: Uncomment when HackyYamlConfigUpdater is merged into pmmp
 		
 		$this->listener = new EventListener($this);
 		$this->getServer()->getPluginManager()->registerEvents($this->listener, $this);
@@ -92,7 +92,7 @@ class TicTacToe extends PluginBase{
 	 */
 	private function validateConfig(){
 		$cfg = $this->getConfig();
-		$this->populateVals(self::DEFAULT_CFG_VALUES, $cfg);
+		$this->populateVals(self::DEFAULT_CFG_VALUES, $cfg->getAll(), $cfg);
 	}
 	
 	/**
@@ -100,16 +100,22 @@ class TicTacToe extends PluginBase{
 	 * Populates the given key with a key => val association
 	 *
 	 * @param array $vals
+	 * @param array $cfgContents
 	 * @param Config $cfg
 	 * @param string $oKey
 	 */
-	private function populateVals(array $vals, Config $cfg, string $oKey = ""){
+	private function populateVals(array $vals, array $cfgContents, Config $cfg, string $oKey = ""){
+		if($oKey !== ""){
+			$oKey .= ".";
+		}
 		foreach($vals as $key => $val){
-			if(is_array($val)){
-				$this->populateVals($val, $cfg,$oKey.$key);
+			if(!array_key_exists($key, $cfgContents)){
+				$this->getLogger()->warning("A config key is MISSING: '".$oKey.$key."': Please re-add the key!"); //TODO: change to notice when HackyYamlConfigUpdater is merged into pmmp
+				$cfg->setNested($oKey.$key, $val);
+				$cfgContents[$key] = $val;
 			}
-			if(!$cfg->exists($key)){
-				$cfg->set($oKey.$key, $val);
+			if(is_array($val)){
+				$this->populateVals($val, $cfgContents[$key], $cfg,$oKey.$key);
 			}
 		}
 	}
