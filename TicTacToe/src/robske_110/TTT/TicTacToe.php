@@ -18,7 +18,8 @@ class TicTacToe extends PluginBase{
 		"on-game-end" => [
 			"teleport-default-level" => true,
 			"teleport-level" => "",
-			"teleport-position" => [null, null, null]
+			"teleport-position" => [null, null, null],
+			"teleport-delay" => 100
 		],
 		"time-limit" => [
 			"max-time" => -1,
@@ -151,6 +152,7 @@ class TicTacToe extends PluginBase{
 				));
 			}
 		}
+		$this->gameManager->setOnGameEndTeleportDelay($onGameEnd["teleport-delay"]);
 	}
 	
 	/**

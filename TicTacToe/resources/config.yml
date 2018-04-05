@@ -10,6 +10,8 @@ on-game-end:
     - ~
     - ~
     - ~
+  # defines the delay in ticks before the players are teleported. (0 or ~ for instant teleport) [default 5s]
+  teleport-delay: 100
 
 ### NOT IMPLEMENTED ###
 time-limit:

@@ -12,8 +12,11 @@ class GameManager{
 	private $games = [];
 	/** @var Arena[]  */
 	private $arenas = [];
+	
 	/** @var Position|null */
 	private $onGameEndPos = null;
+	/** @var int|null */
+	private $onGameEndTeleportDelay = null;
 	
 	public function __construct(TicTacToe $main){
 		$this->main = $main;
@@ -66,14 +69,27 @@ class GameManager{
 	}
 	
 	/**
+	 * @param int|null $ticks Sets the onGameEnd Position. If null is supplied, will not teleport after a game ends.
+	 */
+	public function setOnGameEndTeleportDelay(?int $ticks){
+		$this->onGameEndTeleportDelay = $ticks;
+	}
+	
+	/**
 	 * @internal
 	 *
 	 * @param Game $game
 	 */
 	public function endGame(Game $game){
 		if($this->onGameEndPos !== null){
-			foreach($game->getPlayers() as $playerData){
-				$playerData[0]->teleport($this->onGameEndPos);
+			if($this->onGameEndTeleportDelay == 0){
+				foreach($game->getPlayers() as $playerData){
+					$playerData[0]->teleport($this->onGameEndPos);
+				}
+			}else{
+				foreach($game->getPlayers() as $playerData){
+					$this->main->getServer()->getScheduler()->scheduleDelayedTask(new TeleportTask($playerData[0], $this->onGameEndPos), $this->onGameEndTeleportDelay);
+				}
 			}
 		}
 	}

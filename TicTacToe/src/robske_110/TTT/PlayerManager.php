@@ -134,7 +134,7 @@ class PlayerManager{
 							$this->game->getArena()->deOccupy($this->game);
 							$this->game = null;
 						}else{
-							$this->main->getLogger()->critical("TicTacToe: A player left while being in an inactive game that was not awaiting players!"); //Should not happen.
+							$this->main->getLogger()->critical("A player left while being in an inactive game that was not awaiting players!"); //Should not happen.
 						}
 					}
 				}
