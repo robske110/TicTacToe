@@ -1,6 +1,5 @@
 --- # https://poggit.pmmp.io/ci/robske110/TicTacToe
 branches:
-- 1.0.0-InDev
 - master
 projects:
   TicTacToe:
