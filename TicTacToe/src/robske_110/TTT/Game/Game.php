@@ -13,11 +13,11 @@ use pocketmine\item\Item;
 use pocketmine\block\Block;
 
 class Game{
-	/** @var Arena */
+	/** @var Arena|null */
 	private $arena;
 	/** @var bool */
 	private $active = false;
-	/** @var Player[][] */
+	/** @var int[[Player, bool]]|null */
 	private $players;
 	/** @var array */
 	private $map = [
@@ -55,9 +55,6 @@ class Game{
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
 					#var_dump($this->map);
 					$this->checkForWin();
-					if(!$this->active){
-						return true;
-					}
 					$this->players[$playerID][1] = false;
 					$opID = $this->getOpponent($playerID);
 					$this->players[$opID][1] = true;
