@@ -157,6 +157,11 @@ class Game{
 				return $playerID;
 			}
 		}
+		var_dump($this);
+		var_dump($this->players);
+		var_dump($this->map);
+		var_dump($this->arena);
+		throw new \Exception("getPlayerWithSymbol: failed");
 		return -1;
 	}
 	
@@ -171,6 +176,11 @@ class Game{
 				return $oppID;
 			}
 		}
+		var_dump($this);
+		var_dump($this->players);
+		var_dump($this->map);
+		var_dump($this->arena);
+		throw new \Exception("getOpponent: failed");
 		return -1;
 	}
 
