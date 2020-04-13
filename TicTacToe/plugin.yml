@@ -1,5 +1,5 @@
 name: TicTacToe
-api: [3.0.0-ALPHA8, 3.0.0-ALPHA9, 3.0.0-ALPHA10, 3.0.0-ALPHA11]
+api: 3.0.0
 version: 1.0.0-InDev-alpha1-pre
 load: POSTWORLD
 main: robske_110\TTT\TicTacToe
@@ -16,6 +16,8 @@ commands:
 permissions:
  TicTacToe:
   description: "Allows to use all TicTacToe features"
+  default: false
   children:
    TicTacToe.createArenas:
     description: "Users with this permission will be able to create arenas."
+    default: op

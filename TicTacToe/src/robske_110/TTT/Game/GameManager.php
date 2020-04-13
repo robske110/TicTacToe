@@ -40,12 +40,16 @@ class GameManager{
 	 * @return null|Arena
 	 */
 	public function getFreeArena(): ?Arena{
+		$freeArenas = [];
 		foreach($this->arenas as $arena){
 			if(!$arena->isOccupied()){
-				return $arena;
+				$freeArenas[] = $arena;
 			}
 		}
-		return null;
+		if(empty($freeArenas)){
+			return null;
+		}
+		return $freeArenas[mt_rand(0, count($freeArenas)-1)];
 	}
 	
 	/**
