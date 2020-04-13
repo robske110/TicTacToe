@@ -3,7 +3,9 @@
 namespace robske_110\TTT;
 
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\Player;
@@ -96,6 +98,21 @@ class EventListener implements Listener{
 		$this->main->getPlayerManager()->removePlayer($event->getPlayer()->getId());
 		$this->main->getGameManager()->clearPlayerTeleport($event->getPlayer());
 	}
+	
+	
+	public function onUncommandedLevelChange(EntityTeleportEvent $event){
+		if(!$event->getEntity() instanceof Player){
+			return;
+		}
+		if($event->getFrom()->getLevel() !== $event->getTo()->getLevel()){
+			$this->main->getGameManager()->abortPlayerTeleport($event->getEntity()->getId());
+			$this->main->getPlayerManager()->removePlayer($event->getEntity()->getId());
+		}
+	}
+	
+	public function onDeath(PlayerDeathEvent $event){
+		$this->main->getGameManager()->abortPlayerTeleport($event->getPlayer()->getId());
+		$this->main->getPlayerManager()->removePlayer($event->getPlayer()->getId());
 	}
 }
 //Theory is when you know something, but it doesn't work. Practice is when something works, but you don't know why. Programmers combine theory and practice: Nothing works and they don't know why!
