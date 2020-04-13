@@ -157,14 +157,6 @@ class Game{
 				return $playerID;
 			}
 		}
-		Logger::critical("Failed to get player with Symbol .'".$symbol." Dumping this, players, map, active, arena...");
-		var_dump($this);
-		var_dump($this->players);
-		var_dump($this->map);
-		var_dump($this->active);
-		var_dump($this->arena);
-		Logger::notice("Creating stack trace:");
-		throw new \Exception("getPlayerWithSymbol: failed");
 		return -1;
 	}
 	
@@ -179,14 +171,6 @@ class Game{
 				return $oppID;
 			}
 		}
-		Logger::critical("Failed to get opponent for player .'".$playerID." Dumping this, players, map, active, arena...");
-		var_dump($this);
-		var_dump($this->players);
-		var_dump($this->map);
-		var_dump($this->active);
-		var_dump($this->arena);
-		Logger::notice("Creating stack trace:");
-		throw new \Exception("getOpponent: failed");
 		return -1;
 	}
 
