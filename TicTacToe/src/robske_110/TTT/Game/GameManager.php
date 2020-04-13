@@ -4,6 +4,7 @@ namespace robske_110\TTT\Game;
 
 use pocketmine\level\Position;
 use robske_110\TTT\TicTacToe;
+use pocketmine\Player;
 
 class GameManager{
 	/** @var TicTacToe  */
@@ -12,6 +13,8 @@ class GameManager{
 	private $games = [];
 	/** @var Arena[]  */
 	private $arenas = [];
+	/** @var array [$playerID => [$pos, $taskHandler]] */
+	private $playerTeleportJobs = [];
 	
 	/** @var Position|null */
 	private $onGameEndPos = null;
@@ -76,6 +79,26 @@ class GameManager{
 	}
 	
 	/**
+	 * @param Player $player The player for which the teleport should be executed immediately.
+	 */
+	public function clearPlayerTeleport(Player $player){
+		if(isset($this->playerTeleportJobs[$player->getId()])){
+			$player->teleport($this->playerTeleportJobs[$player->getId()]);
+			$this->abortPlayerTeleport($player->getId());
+		}
+	}
+	
+	/**
+	 * @param int $playerId The player for which the playerTeleport should be aborted
+	 */
+	public function abortPlayerTeleport(int $playerId){
+		if(isset($this->playerTeleportJobs[$playerId])){
+			$this->playerTeleportJobs[$playerId]->cancel();
+			unset($this->playerTeleportJobs[$playerId]);
+		}
+	}
+	
+	/**
 	 * @internal
 	 *
 	 * @param Game $game
@@ -88,7 +111,11 @@ class GameManager{
 				}
 			}else{
 				foreach($game->getPlayers() as $playerData){
-					$this->main->getServer()->getScheduler()->scheduleDelayedTask(new TeleportTask($playerData[0], $this->onGameEndPos), $this->onGameEndTeleportDelay);
+					$taskHandler = $this->main->getScheduler()->scheduleDelayedTask(
+						new TeleportTask($playerData[0], $this->onGameEndPos, $this),
+						$this->onGameEndTeleportDelay
+					);
+					$this->playerTeleportJobs[$playerData[0]->getId()] = [$this->onGameEndPos, $taskHandler];
 				}
 			}
 		}

@@ -11,10 +11,13 @@ class TeleportTask extends Task{
 	private $player;
 	/** @var Position */
 	private $pos;
+	/** @var GameManager */
+	private $gameManager;
 	
-	public function __construct(Player $player, Position $pos){
+	public function __construct(Player $player, Position $pos, GameManager $gameManager){
 		$this->player = $player;
 		$this->pos = $pos;
+		$this->gameManager = $gameManager;
 	}
 	
 	
@@ -22,5 +25,6 @@ class TeleportTask extends Task{
 		if(!$this->player->isClosed()){
 			$this->player->teleport($this->pos);
 		}
+		$this->gameManager->abortPlayerTeleport($this->player->getId());
 	}
 }

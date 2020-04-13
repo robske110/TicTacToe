@@ -6,6 +6,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\Player;
 use pocketmine\tile\Sign;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
@@ -93,6 +94,8 @@ class EventListener implements Listener{
 	
 	public function onLeave(PlayerQuitEvent $event){
 		$this->main->getPlayerManager()->removePlayer($event->getPlayer()->getId());
+		$this->main->getGameManager()->clearPlayerTeleport($event->getPlayer());
+	}
 	}
 }
 //Theory is when you know something, but it doesn't work. Practice is when something works, but you don't know why. Programmers combine theory and practice: Nothing works and they don't know why!
