@@ -186,7 +186,7 @@ class TicTacToe extends PluginBase{
 				[$positions[1]->x, $positions[1]->y, $positions[1]->z, $positions[1]->level->getFolderName()]
 			]
 		);
-		$this->db->save(true);
+		$this->db->save();
 	}
 	
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
