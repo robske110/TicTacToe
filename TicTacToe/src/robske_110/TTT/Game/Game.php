@@ -134,7 +134,7 @@ class Game{
 			return true;
 		}
 		if($this->map[2][0] !== "" && $this->map[2][0] === $this->map[1][1] && $this->map[2][0] === $this->map[0][2]){ #\
-			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
+			$this->end($this->getPlayerWithSymbol($this->map[2][0]));
 			return true;
 		}
 		$isFull = true;
