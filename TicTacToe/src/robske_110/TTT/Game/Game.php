@@ -54,7 +54,9 @@ class Game{
 					}
 					$this->map[$pos[0]][$pos[1]] = $this->players[$playerID][2];
 					#var_dump($this->map);
-					$this->checkForWin();
+					if($this->checkForWin()){
+						return true;
+					}
 					$this->players[$playerID][1] = false;
 					$opID = $this->getOpponent($playerID);
 					$this->players[$opID][1] = true;
@@ -114,11 +116,26 @@ class Game{
 		return [$verticalPos, $horizontalPos];
 	}
 	
-	private function checkForWin(){
+	private function checkForWin(): bool{
 		foreach($this->map as $content){
 			if($content[0] !== "" && $content[0] === $content[1] && $content[0] === $content[2]){ //horizontal row
 				$this->end($this->getPlayerWithSymbol($content[0]));
+				return true;
 			}
+		}
+		for($i = 0; $i < 3; $i++){
+			if($this->map[0][$i] !== "" && $this->map[0][$i] === $this->map[1][$i] && $this->map[0][$i] === $this->map[2][$i]){ //vertical row
+				$this->end($this->getPlayerWithSymbol($this->map[0][$i]));
+				return true;
+			}
+		}
+		if($this->map[0][0] !== "" && $this->map[0][0] === $this->map[1][1] && $this->map[0][0] === $this->map[2][2]){ #/
+			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
+			return true;
+		}
+		if($this->map[2][0] !== "" && $this->map[2][0] === $this->map[1][1] && $this->map[2][0] === $this->map[0][2]){ #\
+			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
+			return true;
 		}
 		$isFull = true;
 		foreach($this->map as $content){
@@ -129,18 +146,9 @@ class Game{
 		}
 		if($isFull){
 			$this->end();
+			return true;
 		}
-		for($i = 0; $i < 3; $i++){
-			if($this->map[0][$i] !== "" && $this->map[0][$i] === $this->map[1][$i] && $this->map[0][$i] === $this->map[2][$i]){ //vertical row
-				$this->end($this->getPlayerWithSymbol($this->map[0][$i]));
-			}
-		}
-		if($this->map[0][0] !== "" && $this->map[0][0] === $this->map[1][1] && $this->map[0][0] === $this->map[2][2]){ #/
-			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
-		}
-		if($this->map[2][0] !== "" && $this->map[2][0] === $this->map[1][1] && $this->map[2][0] === $this->map[0][2]){ #\
-			$this->end($this->getPlayerWithSymbol($this->map[0][0]));
-		}
+		return false;
 	}
 	
 	/**
@@ -276,6 +284,7 @@ class Game{
 			$this->players[$this->getOpponent($winnerPlayerID)][0]->sendMessage("You lost!");
 		}
 		$this->cleanup();
+		echo("END GAME DONE");
 		return true;
 	}
 	
