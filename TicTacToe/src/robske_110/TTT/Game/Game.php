@@ -17,8 +17,8 @@ class Game{
 	private $arena;
 	/** @var bool */
 	private $active = false;
-	/** @var int[[Player, bool]]|null */
-	private $players;
+	/** @var int[[Player, bool]] */
+	private $players = [];
 	/** @var array */
 	private $map = [
 		0 => ["","",""],
@@ -167,18 +167,18 @@ class Game{
  	 *
 	 * @return int PlayerID
 	 */
-	public function getOpponent(int $playerID): int{
+	public function getOpponent(int $playerID): ?int{
 		foreach($this->players as $oppID => $playerData){
 			if($oppID !== $playerID){
 				return $oppID;
 			}
 		}
-		var_dump($this);
+		/*var_dump($this);
 		var_dump($this->players);
 		var_dump($this->map);
 		var_dump($this->arena);
-		throw new \Exception("getOpponent: failed");
-		return -1;
+		throw new \Exception("getOpponent: failed");*/
+		return null;
 	}
 
     /**
@@ -247,7 +247,7 @@ class Game{
 	/**
 	 * @param int $looserPlayerID The player who lost.
 	 *
-	 * @return bool If the player could be found, the opposite player could be found and the game could be ended.
+	 * @return bool Whether the game was running (active) or not.
 	 */
 	public function endInverted(int $looserPlayerID): bool{
 		return $this->end($this->getOpponent($looserPlayerID));
@@ -256,10 +256,12 @@ class Game{
 	/**
 	 * @param int|null $winnerPlayerID
 	 *
-	 * @return bool If the player could be found, the game was active and the game could be ended.
+	 * @return bool Whether the game was running (active) or not.
 	 */
 	public function end(?int $winnerPlayerID = null): bool{
+		echo("ENDING GAME\n");
 		if(!$this->active){
+			$this->cleanup();
 			return false;
 		}
 		foreach($this->players as $playerData){
@@ -273,13 +275,17 @@ class Game{
 			$this->players[$winnerPlayerID][0]->sendMessage("You won!");
 			$this->players[$this->getOpponent($winnerPlayerID)][0]->sendMessage("You lost!");
 		}
+		$this->cleanup();
+		return true;
+	}
+	
+	private function cleanup(){
 		$this->active = false;
 		$this->arena->deOccupy($this);
 		$this->arena->getMain()->getPlayerManager()->onGameEnd($this);
 		$this->arena->getMain()->getGameManager()->endGame($this);
 		$this->arena = null;
-		$this->players = null;
-		return true;
+		$this->players = [];
 	}
 }
 //Theory is when you know something, but it doesn't work. Practice is when something works, but you don't know why. Programmers combine theory and practice: Nothing works and they don't know why!

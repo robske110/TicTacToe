@@ -3,6 +3,7 @@
 namespace robske_110\TTT\Game;
 
 use pocketmine\level\Position;
+use pocketmine\scheduler\TaskHandler;
 use robske_110\TTT\TicTacToe;
 use pocketmine\Player;
 
@@ -13,7 +14,7 @@ class GameManager{
 	private $games = [];
 	/** @var Arena[]  */
 	private $arenas = [];
-	/** @var array [$playerID => [$pos, $taskHandler]] */
+	/** @var TaskHandler[] */
 	private $playerTeleportJobs = [];
 	
 	/** @var Position|null */
@@ -87,7 +88,7 @@ class GameManager{
 	 */
 	public function clearPlayerTeleport(Player $player){
 		if(isset($this->playerTeleportJobs[$player->getId()])){
-			$player->teleport($this->playerTeleportJobs[$player->getId()]);
+			$player->teleport($this->onGameEndPos);
 			$this->abortPlayerTeleport($player->getId());
 		}
 	}
@@ -119,7 +120,7 @@ class GameManager{
 						new TeleportTask($playerData[0], $this->onGameEndPos, $this),
 						$this->onGameEndTeleportDelay
 					);
-					$this->playerTeleportJobs[$playerData[0]->getId()] = [$this->onGameEndPos, $taskHandler];
+					$this->playerTeleportJobs[$playerData[0]->getId()] = $taskHandler;
 				}
 			}
 		}

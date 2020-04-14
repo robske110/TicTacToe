@@ -129,12 +129,12 @@ class PlayerManager{
 		if(isset($this->players[$playerID])){
 			if($endGame){
 				if($this->players[$playerID] instanceof Game){
+					$wasQueueGame = $this->players[$playerID] === $this->game;
 					if(!$this->players[$playerID]->endInverted($playerID)){
-						if($this->players[$playerID] === $this->game){
-							$this->game->getArena()->deOccupy($this->game);
+						if($wasQueueGame){
 							$this->game = null;
 						}else{
-							$this->main->getLogger()->critical("A player left while being in an inactive game that was not awaiting players!"); //Should not happen.
+							throw new \InvalidStateException("An inactive game was not registered in PlayerManager!");
 						}
 					}
 				}
