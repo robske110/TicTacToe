@@ -84,6 +84,13 @@ class GameManager{
 	}
 	
 	/**
+	 * @return int|null Gets the amount of delay before teleporting to the onGameEnd Position.
+	 */
+	public function getOnGameEndTeleportDelay(): ?int{
+		return $this->onGameEndTeleportDelay;
+	}
+	
+	/**
 	 * @param Player $player The player for which the teleport should be executed immediately.
 	 */
 	public function clearPlayerTeleport(Player $player){

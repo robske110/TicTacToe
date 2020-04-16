@@ -104,7 +104,10 @@ class PlayerManager{
 		foreach($game->getPlayers() as $playerID => $playerData){
 			$this->removePlayer($playerID, false);
 		}
-		$this->useFreedArena($game->getArena());
+		$this->main->getScheduler()->scheduleDelayedTask(
+			new FreeArenaTask($game->getArena(), $this),
+			max(10, $this->main->getGameManager()->getOnGameEndTeleportDelay() ?? 0)
+		);
 	}
 	
 	public function useFreedArena(Arena $arena){
